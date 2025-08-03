@@ -1,6 +1,106 @@
-package com.project.back_end.models;
+package com.project_back_end.models;
 
+import javax.persistence.*;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Entity
 public class Appointment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @NotNull(message = "Doctor is required for an appointment")
+    private Doctor doctor;
+
+    @ManyToOne
+    @NotNull(message = "Patient is required for an appointment")
+    private Patient patient;
+
+    @NotNull(message = "Appointment time must be provided")
+    @Future(message = "Appointment time must be in the future")
+    private LocalDateTime appointmentTime;
+
+    @NotNull(message = "Status is required")
+    private int status; // 0 = Scheduled, 1 = Completed
+
+    public Appointment() {}
+
+    public Appointment(Doctor doctor, Patient patient, LocalDateTime appointmentTime, int status) {
+        this.doctor = doctor;
+        this.patient = patient;
+        this.appointmentTime = appointmentTime;
+        this.status = status;
+    }
+
+    // Getters and Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    public LocalDateTime getAppointmentTime() {
+        return appointmentTime;
+    }
+
+    public void setAppointmentTime(LocalDateTime appointmentTime) {
+        this.appointmentTime = appointmentTime;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    // Helper Methods
+
+    @Transient
+    public LocalDateTime getEndTime() {
+        // Returns one hour after appointment start time
+        return appointmentTime != null ? appointmentTime.plusHours(1) : null;
+    }
+
+    @Transient
+    public LocalDate getAppointmentDate() {
+        // Returns only the date part of the appointment
+        return appointmentTime != null ? appointmentTime.toLocalDate() : null;
+    }
+
+    @Transient
+    public LocalTime getAppointmentTimeOnly() {
+        // Returns only the time part of the appointment
+        return appointmentTime != null ? appointmentTime.toLocalTime() : null;
+    }
+
 
   // @Entity annotation:
 //    - Marks the class as a JPA entity, meaning it represents a table in the database.
