@@ -1,4 +1,4 @@
-package com.project_back_end.models;
+package com.project.back_end.models;
 
 
 import jakarta.validation.constraints.Future;
