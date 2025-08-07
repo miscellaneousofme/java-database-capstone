@@ -1,3 +1,123 @@
+// doctorCard.js
+
+import { deleteDoctor } from "../services/doctorServices.js";
+import { getPatientData } from "../services/patientServices.js";
+import { showBookingOverlay } from "../loggedPatient.js"; // Assumes this function shows booking UI overlay
+
+/**
+ * Creates a DOM element representing a doctor card.
+ * @param {Object} doctor - Doctor info object with fields: name, specialty, email, availableTimes
+ * @returns {HTMLElement} - The populated doctor card element
+ */
+export function createDoctorCard(doctor) {
+  // Main card container
+  const card = document.createElement("div");
+  card.classList.add("doctor-card");
+
+  // Fetch current user role from localStorage
+  const role = localStorage.getItem("userRole");
+
+  // Doctor info container
+  const infoDiv = document.createElement("div");
+  infoDiv.classList.add("doctor-info");
+
+  // Doctor Name
+  const name = document.createElement("h3");
+  name.textContent = doctor.name;
+  infoDiv.appendChild(name);
+
+  // Specialization
+  const specialization = document.createElement("p");
+  specialization.textContent = `Specialty: ${doctor.specialty}`;
+  infoDiv.appendChild(specialization);
+
+  // Email
+  const email = document.createElement("p");
+  email.textContent = `Email: ${doctor.email}`;
+  infoDiv.appendChild(email);
+
+  // Available times (join array to string)
+  const availability = document.createElement("p");
+  availability.textContent = `Available Times: ${doctor.availableTimes ? doctor.availableTimes.join(", ") : "N/A"}`;
+  infoDiv.appendChild(availability);
+
+  // Actions container for buttons
+  const actionsDiv = document.createElement("div");
+  actionsDiv.classList.add("card-actions");
+
+  // Role-based controls:
+
+  // Admin: show Delete button
+  if (role === "admin") {
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Delete";
+    removeBtn.classList.add("adminBtn");
+    removeBtn.addEventListener("click", async () => {
+      if (!confirm(`Are you sure you want to delete Dr. ${doctor.name}?`)) return;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in as admin to delete.");
+        return;
+      }
+      try {
+        const result = await deleteDoctor(doctor.id, token);
+        if (result.success) {
+          alert(`Doctor ${doctor.name} deleted successfully.`);
+          card.remove(); // Remove card from DOM
+        } else {
+          alert(`Failed to delete doctor: ${result.message || "Unknown error"}`);
+        }
+      } catch (error) {
+        console.error("Error deleting doctor:", error);
+        alert("An error occurred while deleting the doctor.");
+      }
+    });
+    actionsDiv.appendChild(removeBtn);
+
+  } 
+  // Patient not logged in: Book Now shows alert to login
+  else if (role === "patient") {
+    const bookNow = document.createElement("button");
+    bookNow.textContent = "Book Now";
+    bookNow.addEventListener("click", () => {
+      alert("Patient needs to login first.");
+    });
+    actionsDiv.appendChild(bookNow);
+
+  }
+  // Logged-in patient: Book Now shows booking overlay
+  else if (role === "loggedPatient") {
+    const bookNow = document.createElement("button");
+    bookNow.textContent = "Book Now";
+    bookNow.addEventListener("click", async (e) => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to book an appointment.");
+        window.location.href = "/"; // Or redirect to login page
+        return;
+      }
+      try {
+        const patientData = await getPatientData(token);
+        // showBookingOverlay is assumed imported from loggedPatient.js
+        showBookingOverlay(e, doctor, patientData);
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+        alert("Could not retrieve patient info for booking.");
+      }
+    });
+    actionsDiv.appendChild(bookNow);
+
+  }
+  // For other roles or no role - no action buttons displayed.
+
+  // Append info and actions to main card container
+  card.appendChild(infoDiv);
+  card.appendChild(actionsDiv);
+
+  return card;
+}
+
+
 /*
 Import the overlay function for booking appointments from loggedPatient.js
 

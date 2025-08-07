@@ -1,4 +1,86 @@
 <!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Role</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/images/logo/Logo.png" type="image/png">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <!-- JS Utilities & Component Scripts (deferred) -->
+    <script src="../js/util.js" defer></script>
+    <script src="../js/render.js" defer></script>
+    <script src="../js/components/header.js" defer></script>
+    <script src="../js/components/footer.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="wrapper">
+
+        <!-- Header placeholder -->
+        <div id="header"></div>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <h2>Select Your Role</h2>
+
+            <!-- Buttons for Roles -->
+            <button id="adminBtn" onclick="selectRole('Admin')">Admin</button>
+            <button id="doctorBtn" onclick="selectRole('Doctor')">Doctor</button>
+            <button id="patientBtn" onclick="selectRole('Patient')">Patient</button>
+        </main>
+
+        <!-- Footer placeholder -->
+        <div id="footer"></div>
+
+    </div>
+</div>
+
+<!-- Modal Structure (hidden by default) -->
+<div id="modal" class="modal" style="display:none;">
+    <button id="closeModal" aria-label="Close modal">&times;</button>
+    <div id="modal-body"></div>
+</div>
+
+<!-- Page-specific Logic -->
+<script type="module" src="../js/services/index.js" defer></script>
+
+<script>
+    // Example selectRole function, store role in localStorage and trigger modal
+    function selectRole(role) {
+        localStorage.setItem('selectedRole', role);
+
+        // Here you can trigger the modal opening and inject login UI dynamically
+        const modal = document.getElementById('modal');
+        const modalBody = document.getElementById('modal-body');
+        modal.style.display = 'block';
+
+        // Simple example content for modal - in your real app, you'd render the login form dynamically
+        modalBody.innerHTML = `<h3>${role} Login</h3><p>Login form for ${role} goes here.</p>`;
+
+        // Focus modal for accessibility
+        modal.setAttribute('tabindex', '-1');
+        modal.focus();
+    }
+
+    // Close modal event
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.getElementById('modal').style.display = 'none';
+    });
+
+    // Optional: Close modal when clicking outside modal content or pressing Escape key (add as enhancement)
+</script>
+
+</body>
+</html>
+
+<!-- index.html -->
 <!-- 
 
 Step-by-Step Explanation of `index.html`.
