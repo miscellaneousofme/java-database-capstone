@@ -1,29 +1,38 @@
-/* adminDashboard CSS */
+/* defineRole CSS */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }  
+  }
+  
   html, body {
     height: 100%;
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
+    
   
-  }  
+  }
+  
   .wrapper {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-  }  
+  }
+  
   h2 {
-    font-size: 32px;
+    font-size: 48px;
     margin-bottom: 50px;
     color : #003e3e;
-  }  
+    font-weight : bolder;
+    font-family: 'Alegreya','Roboto', sans-serif;
+  }
+  
+  
   .main-content {
     flex-grow: 1; 
     padding: 40px;
     display: flex;
-    
+    justify-content: center;
+    align-items: center;
     flex-direction: column;
     text-align: center;
     background-image: url("../images/defineRole/defineRole.png");
@@ -32,9 +41,10 @@
     background-repeat: no-repeat; 
     background-attachment: fixed;
     
-  }  
+  }
+  
   button {
-    background-color: #A62B1F;
+    background-color: #015c5d;
     color: white;
     border: none;
     border-radius: 12px;
@@ -43,18 +53,16 @@
     cursor: pointer;
     font-size: 16px;
     width: 200px;
-  }  
+  }
+  
   button:hover {
     background-color: #A62B1F; 
   }
-  .adminBtn {    
-    color: #333;
-    font-weight: bold;
-    background-color: #f4f4f4;
-    width:110px;
-    padding : 10px 0px;
+  
+  .dashboard-btn{
+    background-color:#015c5d;
   }
-  .adminBtn:hover{
-    color: #A62B1F;
-    background-color: #f4f4f4;
+  
+  .dashboard-btn:hover{
+    background-color:#003e3e;
   }

@@ -1,281 +1,63 @@
-/* This is the style sheet for the doctorDashboard.html */
+/* doctorDashboard.css */
+.table-header {
+  font-size: 24px;
+  color: #015c5d;
 
-/* Global Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin-bottom: 30px;
+  margin-right: 0px;
 }
-
-/* Base Styles */
-html, body {
-  height: 100%;
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
-}
-
-/* Layout Wrapper */
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 20px 40px;
-  background-color: #ffffff;
-}
-
-/* Main Content */
-.main-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-}
-
-/* Search Bar Styling */
-#searchBar {
-  width: 300px;
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-#searchBar:focus {
-  outline: none;
-  border-color: #015c5d;
-  box-shadow: 0 0 5px #015c5d;
-}
-
-/* Filter Section */
-#filters {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-/* Today Button */
-.today-btn {
-  padding: 10px 20px;
-  background-color: #015c5d;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 16px;
-}
-
-.today-btn:hover {
-  background-color: #017d7e;
-}
-
-/* Date Picker */
-.date-picker {
-  padding: 10px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  margin-left: 10px;
-  box-sizing: border-box;
-}
-
-.date-picker:focus {
-  outline: none;
-  border-color: #015c5d;
-  box-shadow: 0 0 5px #015c5d;
-}
-
-/* Table Styles */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: sans-serif;
   margin-top: 20px;
 }
-
-/* Table Header */
 thead {
-  background-color: rgba(51, 51, 51, 0.06); /* #33333310 */
+  background-color: #33333310;
   color: #fff;
 }
-
-thead tr {
-  background-color: #015c5d; /* Dark teal */
-}
-
-thead th {
-  padding: 12px 16px;
-  text-align: center;
-  font-size: 18px;
-  color: white;
-  border-bottom: none;
-}
-
-/* Table Cells */
-td, th {
+td,
+th {
   padding: 12px 16px;
   text-align: center;
   border-bottom: 1px solid #ddd;
 }
-
-/* Table Body Rows */
 tbody tr:nth-child(even) {
-  background-color: rgba(249, 249, 249, 0.35); /* #f9f9f959 */
+  background-color: #f9f9f959;
 }
-
 tbody tr:nth-child(odd) {
-  background-color: rgba(255, 255, 255, 0.75); /* #ffffffc0 */
+  background-color: #ffffffc0;
 }
-
 tbody tr:hover {
-  background-color: #015c5d39; /* Light teal overlay */
-  cursor: pointer;
+  background-color: #015c5d39;
 }
-
-/* Prescription Button */
 .prescription-btn {
   width: 30px;
   height: 30px;
-  background-color: #015c5d;
-  border: none;
-  border-radius: 6px;
-  color: white;
   cursor: pointer;
   transition: transform 0.2s ease, filter 0.2s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
-
 .prescription-btn:hover {
   transform: scale(1.1);
   filter: brightness(1.2);
 }
-
 .prescription-btn:active {
   transform: scale(0.95);
 }
-
-/* No Record Message */
 .noPatientRecord {
   font-size: 16px;
+  color: gray;
   font-style: italic;
-  color: #777;
-  text-align: center;
-  margin-top: 20px;
 }
-
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-  /* Adjust wrapper padding */
-  .wrapper {
-    padding: 15px 20px;
-  }
-
-  /* Make search bar full width */
-  #searchBar {
-    width: 100%;
-  }
-
-  /* Filters stack vertically */
-  #filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  /* Today button full width + date picker full width */
-  .today-btn, .date-picker {
-    width: 100%;
-    margin-left: 0;
-    margin-bottom: 10px;
-  }
-
-  /* Table smaller font */
-  table {
-    font-size: 14px;
-  }
-
-  thead th, td, th {
-    padding: 8px 10px;
-  }
-
-  /* Prescription button smaller */
-  .prescription-btn {
-    width: 25px;
-    height: 25px;
-  }
+.today-btn {
+  margin-right: 10px;
+  padding: 10px;
+  background-color: #015c5d;
 }
-
-
-/* This is the style sheet for the doctorDashboard.html */
-/* 
-**Table Header (`.table-header`)**
-
-* Set font size to `24px` for clear emphasis.
-* Use a dark teal color (`#015c5d`) for consistency with the theme.
-* Add `30px` bottom margin and remove right margin.
-
-**Table Styling (`table`)**
-
-* Make the table full width (`100%`).
-* Collapse borders for clean lines.
-* Use a `sans-serif` font.
-* Add `20px` top margin for spacing.
-
-**Table Head (`thead`)**
-
-* Set a very light dark background (`#33333310`) for header row.
-* Use white text color (`#fff`).
-
-**Table Cells (`td, th`)**
-
-* Apply padding of `12px 16px` for spacing.
-* Center-align the text.
-* Add a subtle bottom border (`1px solid #ddd`).
-
-**Table Row Styling**
-
-* Alternate row colors for better readability:
-
-  * Even rows: semi-transparent light grey (`#f9f9f959`).
-  * Odd rows: soft white background (`#ffffffc0`).
-* On hover: highlight row with a light teal overlay (`#015c5d39`).
-
-**Prescription Button (`.prescription-btn`)**
-
-* Set size to `30px x 30px`.
-* Make it interactive with a pointer cursor.
-* Add transition effects for scale and brightness on hover.
-* On hover:
-
-  * Slightly enlarge (`scale(1.1)`)
-  * Brighten appearance
-* On click: slightly shrink (`scale(0.95)`).
-
-**No Record Message (`.noPatientRecord`)**
-
-* Use a `16px` italic grey font to indicate no data gently.
-
-**Today Button (`.today-btn`)**
-
-* Add right margin (`10px`).
-* Add padding (`10px`).
-* Set background color to teal green (`#015c5d`).
-
-**Date Picker (`.date-picker`)**
-
-* Add left margin (`10px`) and top margin (`13px`).
-* Round corners with `8px` radius.
-* Add padding (`10px`) and set fixed height (`30px`).
-
----
-
-Let me know if you'd like a consolidated style guide for the entire HospitalCRM frontend.
- */
+.date-picker {
+  margin-left: 10px;
+  border-radius: 8px;
+  padding: 10px;
+  height: 30px;
+  margin-top: 13px;
+}
