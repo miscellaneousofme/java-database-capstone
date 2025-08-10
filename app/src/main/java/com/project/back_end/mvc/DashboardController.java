@@ -1,7 +1,45 @@
 package com.project.back_end.mvc;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.project.back_end.services.TokenValidationService; // adjust to your actual service package
+
+import java.util.Map;
+
+@Controller
 public class DashboardController {
 
+     @Autowired
+    private TokenValidationService tokenValidationService;
+
+    // Admin Dashboard
+    @GetMapping("/adminDashboard/{token}")
+    public String adminDashboard(@PathVariable String token) {
+        Map<String, Object> validationResult = tokenValidationService.validateToken(token, "admin");
+
+        if (validationResult.isEmpty()) {
+            // Token valid → render admin dashboard
+            return "admin/adminDashboard";
+        } else {
+            // Token invalid → redirect to home/login
+            return "redirect:http://localhost:8080/";
+        }
+    }
+
+    // Doctor Dashboard
+    @GetMapping("/doctorDashboard/{token}")
+    public String doctorDashboard(@PathVariable String token) {
+        Map<String, Object> validationResult = tokenValidationService.validateToken(token, "doctor");
+
+        if (validationResult.isEmpty()) {
+            return "doctor/doctorDashboard";
+        } else {
+            return "redirect:http://localhost:8080/";
+        }
+    }
 // 1. Set Up the MVC Controller Class:
 //    - Annotate the class with `@Controller` to indicate that it serves as an MVC controller returning view names (not JSON).
 //    - This class handles routing to admin and doctor dashboard pages based on token validation.
