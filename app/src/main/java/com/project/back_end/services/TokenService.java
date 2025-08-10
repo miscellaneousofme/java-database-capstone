@@ -1,6 +1,98 @@
 package com.project.back_end.services;
 
+import com.project.back_end.models.Admin;
+import com.project.back_end.models.Doctor;
+import com.project.back_end.models.Patient;
+import com.project.back_end.repo.AdminRepository;
+import com.project.back_end.repo.DoctorRepository;
+import com.project.back_end.repo.PatientRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
+@Component
 public class TokenService {
+
+    private final String jwtSecret;
+    private final AdminRepository adminRepository;
+    private final DoctorRepository doctorRepository;
+    private final PatientRepository patientRepository;
+
+    public TokenService(
+            @Value("${jwt.secret}") String jwtSecret,
+            AdminRepository adminRepository,
+            DoctorRepository doctorRepository,
+            PatientRepository patientRepository
+    ) {
+        this.jwtSecret = jwtSecret;
+        this.adminRepository = adminRepository;
+        this.doctorRepository = doctorRepository;
+        this.patientRepository = patientRepository;
+    }
+
+    /** ---------------- Helper Methods ---------------- **/
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
+    /** ---------------- Token Generation ---------------- **/
+
+    public String generateToken(String emailOrUsername) {
+        Date now = new Date();
+        Date expiry = Date.from(Instant.now().plus(7, ChronoUnit.DAYS));
+
+        return Jwts.builder()
+                .setSubject(emailOrUsername) // can be username (admin) or email (doctor/patient)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /** ---------------- Token Extraction ---------------- **/
+
+    public String extractEmail(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+
+    /** ---------------- Token Validation ---------------- **/
+
+    public boolean validateToken(String token, String role) {
+        try {
+            String identifier = extractEmail(token); // email or username
+
+            switch (role.toLowerCase()) {
+                case "admin":
+                    Admin admin = adminRepository.findByUsername(identifier);
+                    return admin != null;
+                case "doctor":
+                    Doctor doctor = doctorRepository.findByEmail(identifier);
+                    return doctor != null;
+                case "patient":
+                    Patient patient = patientRepository.findByEmail(identifier);
+                    return patient != null;
+                default:
+                    return false;
+            }
+        } catch (Exception e) {
+            return false; // expired or tampered token
+        }
+    }
+
 // 1. **@Component Annotation**
 // The @Component annotation marks this class as a Spring component, meaning Spring will manage it as a bean within its application context.
 // This allows the class to be injected into other Spring-managed components (like services or controllers) where it's needed.

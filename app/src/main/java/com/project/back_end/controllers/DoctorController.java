@@ -1,7 +1,152 @@
 package com.project.back_end.controllers;
 
+import com.project.back_end.models.Doctor;
+import com.project.back_end.DTO.Login;
+import com.project.back_end.services.DoctorService;
+import com.project.back_end.services.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Collections;
+
+@RestController
+@RequestMapping("${api.path}doctor")
 public class DoctorController {
+
+    private final DoctorService doctorService;
+    private final Service service;
+
+    @Autowired
+    public DoctorController(DoctorService doctorService, Service service) {
+        this.doctorService = doctorService;
+        this.service = service;
+    }
+
+    /**
+     * 1. Doctor Availability
+     */
+    @GetMapping("/availability/{user}/{doctorId}/{date}/{token}")
+    public ResponseEntity<Map<String, Object>> getDoctorAvailability(
+            @PathVariable String user,
+            @PathVariable Long doctorId,
+            @PathVariable String date,
+            @PathVariable String token) {
+
+        ResponseEntity<Map<String, String>> validation = service.validateToken(token, user);
+        if (!validation.getStatusCode().is2xxSuccessful()) {
+            return new ResponseEntity(validation.getBody(), validation.getStatusCode());
+        }
+        try {
+            List<String> availability = doctorService.getDoctorAvailability(doctorId, LocalDate.parse(date));
+            return ResponseEntity.ok(Collections.singletonMap("availability", availability));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Collections.singletonMap("message", "Internal error fetching availability"));
+        }
+    }
+
+    /**
+     * 2. Get all doctors
+     */
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getDoctor() {
+        List<Doctor> doctors = doctorService.getDoctors();
+        return ResponseEntity.ok(Collections.singletonMap("doctors", doctors));
+    }
+
+    /**
+     * 3. Add New Doctor (admin only)
+     */
+    @PostMapping("/{token}")
+    public ResponseEntity<Map<String, String>> saveDoctor(@RequestBody Doctor doctor, @PathVariable String token) {
+        ResponseEntity<Map<String, String>> validation = service.validateToken(token, "admin");
+        if (!validation.getStatusCode().is2xxSuccessful()) {
+            return validation;
+        }
+        int res = doctorService.saveDoctor(doctor);
+        if (res == 1) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                                 .body(Collections.singletonMap("message", "Doctor added to db"));
+        } else if (res == -1) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                                 .body(Collections.singletonMap("message", "Doctor already exists"));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Collections.singletonMap("message", "Some internal error occurred"));
+        }
+    }
+
+    /**
+     * 4. Doctor Login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> doctorLogin(@RequestBody Login login) {
+        return doctorService.validateDoctor(login);
+    }
+
+    /**
+     * 5. Update Doctor (admin only)
+     */
+    @PutMapping("/{token}")
+    public ResponseEntity<Map<String, String>> updateDoctor(@RequestBody Doctor doctor, @PathVariable String token) {
+        ResponseEntity<Map<String, String>> validation = service.validateToken(token, "admin");
+        if (!validation.getStatusCode().is2xxSuccessful()) {
+            return validation;
+        }
+        int res = doctorService.updateDoctor(doctor);
+        if (res == 1) {
+            return ResponseEntity.ok(Collections.singletonMap("message", "Doctor updated"));
+        } else if (res == -1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(Collections.singletonMap("message", "Doctor not found"));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Collections.singletonMap("message", "Some internal error occurred"));
+        }
+    }
+
+    /**
+     * 6. Delete Doctor (admin only)
+     */
+    @DeleteMapping("/{id}/{token}")
+    public ResponseEntity<Map<String, String>> deleteDoctor(@PathVariable long id, @PathVariable String token) {
+        ResponseEntity<Map<String, String>> validation = service.validateToken(token, "admin");
+        if (!validation.getStatusCode().is2xxSuccessful()) {
+            return validation;
+        }
+        int res = doctorService.deleteDoctor(id);
+        if (res == 1) {
+            return ResponseEntity.ok(Collections.singletonMap("message", "Doctor deleted successfully"));
+        } else if (res == -1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(Collections.singletonMap("message", "Doctor not found with id"));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Collections.singletonMap("message", "Some internal error occurred"));
+        }
+    }
+
+    /**
+     * 7. Filter doctors by name, time, speciality
+     */
+    @GetMapping("/filter/{name}/{time}/{speciality}")
+    public ResponseEntity<Map<String, Object>> filter(
+            @PathVariable String name,
+            @PathVariable String time,
+            @PathVariable String speciality) {
+
+        Map<String, Object> result = service.filterDoctor(
+                "null".equalsIgnoreCase(name) ? null : name,
+                "null".equalsIgnoreCase(speciality) ? null : speciality,
+                "null".equalsIgnoreCase(time) ? null : time);
+        return ResponseEntity.ok(result);
+    }
+
 
 // 1. Set Up the Controller Class:
 //    - Annotate the class with `@RestController` to define it as a REST controller that serves JSON responses.

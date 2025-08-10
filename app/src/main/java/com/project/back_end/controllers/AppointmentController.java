@@ -1,7 +1,125 @@
 package com.project.back_end.controllers;
 
+import com.project.back_end.models.Appointment;
+import com.project.back_end.services.AppointmentService;
+import com.project.back_end.services.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/appointments")
 public class AppointmentController {
+
+    private final AppointmentService appointmentService;
+    private final Service service;
+
+    @Autowired
+    public AppointmentController(AppointmentService appointmentService, Service service) {
+        this.appointmentService = appointmentService;
+        this.service = service;
+    }
+
+    /**
+     * GET — Retrieve appointments for a doctor on a given date,
+     * optionally filtered by patient name, token must belong to a doctor.
+     */
+    @GetMapping("/{date}/{patientName}/{token}")
+    public ResponseEntity<?> getAppointments(
+            @PathVariable String date,
+            @PathVariable String patientName,
+            @PathVariable String token) {
+
+        // validate token for doctor
+        ResponseEntity<Map<String, String>> validationResponse = service.validateToken(token, "doctor");
+        if (!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return validationResponse; // return error if invalid token
+        }
+
+        try {
+            Map<String, Object> resultMap =
+                    appointmentService.getAppointment(patientName, LocalDate.parse(date), token);
+            return ResponseEntity.ok(resultMap);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Failed to fetch appointments"));
+        }
+    }
+
+    /**
+     * POST — Book a new appointment (token must belong to a patient).
+     */
+    @PostMapping("/{token}")
+    public ResponseEntity<Map<String, String>> bookAppointment(
+            @PathVariable String token,
+            @RequestBody Appointment appointment) {
+
+        // validate token for patient
+        ResponseEntity<Map<String, String>> validationResponse = service.validateToken(token, "patient");
+        if (!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return validationResponse;
+        }
+
+        // validate appointment
+        int validationResult = service.validateAppointment(appointment);
+        if (validationResult == -1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", "Invalid doctor ID"));
+        } else if (validationResult == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", "Selected time slot is not available"));
+        }
+
+        // proceed to booking
+        int result = appointmentService.bookAppointment(appointment);
+        if (result == 1) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Collections.singletonMap("message", "Appointment booked successfully"));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Failed to book appointment"));
+        }
+    }
+
+    /**
+     * PUT — Update an existing appointment (token must belong to a patient).
+     */
+    @PutMapping("/{token}")
+    public ResponseEntity<?> updateAppointment(
+            @PathVariable String token,
+            @RequestBody Appointment appointment) {
+
+        // validate token
+        ResponseEntity<Map<String, String>> validationResponse = service.validateToken(token, "patient");
+        if (!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return validationResponse;
+        }
+
+        return appointmentService.updateAppointment(appointment);
+    }
+
+    /**
+     * DELETE — Cancel an existing appointment (token must belong to a patient).
+     */
+    @DeleteMapping("/{id}/{token}")
+    public ResponseEntity<?> cancelAppointment(
+            @PathVariable long id,
+            @PathVariable String token) {
+
+        // validate token
+        ResponseEntity<Map<String, String>> validationResponse = service.validateToken(token, "patient");
+        if (!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return validationResponse;
+        }
+
+        return appointmentService.cancelAppointment(id, token);
+    }
+
 
 // 1. Set Up the Controller Class:
 //    - Annotate the class with `@RestController` to define it as a REST API controller.

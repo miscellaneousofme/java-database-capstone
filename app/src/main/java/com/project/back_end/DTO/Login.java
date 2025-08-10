@@ -1,6 +1,54 @@
 package com.project.back_end.DTO;
 
+
+/**
+ * DTO for receiving login credentials from the client.
+ * This is used in controller @RequestBody parameters for authentication.
+ * It is NOT an entity and is not persisted in the database.
+ */
+
 public class Login {
+   
+    
+    /**
+     * The unique identifier for the user attempting to log in.
+     * For Admin: username.
+     * For Doctor/Patient: email.
+     */
+    private String identifier;
+
+    /**
+     * The password provided by the user.
+     * This should match the stored (hashed) password for authentication to succeed.
+     */
+    private String password;
+
+    // ===== Default Constructor =====
+    public Login() {
+    }
+
+    // ===== All-Args Constructor (optional for convenience) =====
+    public Login(String identifier, String password) {
+        this.identifier = identifier;
+        this.password = password;
+    }
+
+    // ===== Getters and Setters =====
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
     
 // 1. 'email' field:
 //    - Type: private String
